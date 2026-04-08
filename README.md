@@ -1,35 +1,47 @@
-# 🌍 Global Seismic Activity Analysis
-## IBM Data Science Professional Certificate — Capstone Project
+# Global Seismic Activity Analysis
+## USGS + NOAA Real Data Edition
 
-[![Python](https://img.shields.io/badge/Python-3.10-blue)](https://python.org)
-[![IBM](https://img.shields.io/badge/IBM-Data%20Science-054ADA)](https://www.ibm.com)
-[![Folium](https://img.shields.io/badge/Folium-Maps-green)](https://python-visualization.github.io/folium/)
-[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+**Seismic data:** USGS Earthquake Catalog — M≥5.0 · 1900–2026  
+**Tsunami data:** NOAA/NCEI Global Historical Tsunami Database  
+**Tools:** Python · Pandas · NumPy · Matplotlib · Seaborn · Folium · Scikit-learn · SQLite
 
 ---
 
 ## Overview
 
-Analysis of 10,500+ significant earthquakes (M≥5.0) from 1900 to 2024 using the USGS Earthquake Catalog. Covers geospatial visualization, time series analysis, statistical hypothesis testing, SQL queries, and machine learning classification.
+Analysis of 106,358 real earthquakes (M≥5.0) from the USGS catalog, enriched with validated tsunami labels from the NOAA Global Historical Tsunami Database. Tsunami events were cross-referenced by geographic proximity (±0.5 degrees lat/lon) and temporal window (same year and month), filtered to validated events with confirmed seismic origin.
 
-**Central question:** *Can we predict earthquake magnitude class from observable seismic parameters — and which zones face the highest tsunami risk?*
+**Central questions:**
+1. Where are the most seismically active zones on Earth?
+2. Has global seismic activity changed over 1900–2026?
+3. Can we predict tsunami generation from pre-event seismic parameters?
+4. What does the prediction performance tell us about earthquake forecasting?
 
 ---
 
 ## Dataset
 
-**Source:** U.S. Geological Survey — Earthquake Hazards Program  
-**URL:** https://earthquake.usgs.gov/earthquakes/search/  
-**Coverage:** Global M≥5.0 earthquakes, 1900–2024
+| Source | Description |
+|--------|-------------|
+| USGS Earthquake Catalog | 106,358 M≥5.0 earthquakes, 1900–2026 |
+| NOAA/NCEI Tsunami Database | Validated tsunami events, seismic origin confirmed |
 
-| Statistic | Value |
-|-----------|-------|
-| Total earthquakes | 10,506 |
-| Period | 1900–2024 |
-| M≥7.0 (Major) | 116 |
-| M≥8.0 (Great) | 8 |
-| Tsunami events | 143 |
-| Seismic zones | 18 |
+**Cross-reference methodology:** spatial match within ±0.5° lat/lon + same year/month window. Only tsunamis with validity ≥3 (definite event) and cause code 1 (seismic origin) were used.
+
+---
+
+## Key Findings
+
+| Finding | Result |
+|---------|--------|
+| Gutenberg-Richter b-value | 0.93 (confirmed on real data) |
+| Shallow tsunami rate (≤70km) | ~7% |
+| Deep tsunami rate (>70km) | ~0.5% |
+| Shallow/deep tsunami ratio | ×14 (p < 0.001) |
+| Magnitude trend 1900–2026 | Not increasing (reflects improved detection) |
+| Best model AUC (pre-event only) | 0.725 (Gradient Boosting) |
+
+**Important methodological note on the ML results:** only pre-event features were used (depth, magnitude, measurement errors). Post-event features like felt reports or significance scores were deliberately excluded to avoid data leakage. AUC of 0.725 is the honest result — better than random but insufficient for reliable prediction.
 
 ---
 
@@ -37,43 +49,18 @@ Analysis of 10,500+ significant earthquakes (M≥5.0) from 1900 to 2024 using th
 
 ```
 seismic-activity-analysis/
-│
-├── seismic_analysis.ipynb          # Main analysis notebook
-├── usgs_earthquakes.csv            # Dataset
-├── README.md
+├── seismic_analysis_real.ipynb     — main analysis notebook
+├── usgs_earthquakes_real.csv       — USGS catalog + NOAA tsunami labels
+├── requirements.txt
 └── outputs/
-    ├── fig1_overview.png
-    ├── fig2_depth_alert_tsunami.png
-    ├── fig3_timeseries.png
-    ├── fig4_model_evaluation.png
-    ├── map1_global_heatmap.html     # Interactive heatmap
-    ├── map2_major_earthquakes.html  # Interactive M≥7.0 markers
-    └── map3_tsunami_risk.html       # Interactive tsunami zones
+    ├── fig1_overview.png           — magnitude distribution + timeline
+    ├── fig2_depth_tsunami.png      — depth analysis + regional tsunami counts
+    ├── fig3_timeseries.png         — time series analysis
+    ├── fig4_model_evaluation.png   — ML model comparison
+    ├── map1_global_heatmap.html    — interactive global heatmap
+    ├── map2_major_earthquakes.html — interactive M≥7.0 markers
+    └── map3_tsunami_risk.html      — interactive tsunami risk map
 ```
-
----
-
-## Key Results
-
-| Finding | Result |
-|---------|--------|
-| Gutenberg-Richter b-value | ~1.0 (confirmed) |
-| Tsunami rate — shallow (<70km) | 1.3% |
-| Tsunami rate — deep (>70km) | 0.4% |
-| Depth/tsunami relationship | p < 0.001 (significant) |
-| Magnitude trend (1900–2024) | Not significant (p > 0.05) |
-| Best classifier AUC | >0.99 (Gradient Boosting) |
-
----
-
-## Techniques Applied
-
-- **Data Wrangling:** pandas, datetime parsing, missing value handling
-- **SQL Analysis:** SQLite queries for aggregation and filtering
-- **EDA:** Gutenberg-Richter law, magnitude distributions, temporal trends
-- **Geospatial:** Folium interactive maps (HeatMap, MarkerCluster, CircleMarker)
-- **Statistics:** Chi-square test, point-biserial correlation, linear trend analysis
-- **ML:** Logistic Regression, Random Forest, Gradient Boosting with ROC/AUC
 
 ---
 
@@ -81,17 +68,19 @@ seismic-activity-analysis/
 
 ```bash
 pip install pandas numpy matplotlib seaborn folium scikit-learn scipy jupyter
-jupyter notebook seismic_analysis.ipynb
+jupyter notebook seismic_analysis_real.ipynb
 ```
 
 ---
 
-## References
+## Data Sources
 
-- USGS Earthquake Hazards Program: https://earthquake.usgs.gov
-- Gutenberg & Richter (1944). Frequency of earthquakes in California. *BSSA*, 34(4), 185–188
-- NOAA National Centers for Environmental Information: https://www.ngdc.noaa.gov
+- **USGS Earthquake Hazards Program:** https://earthquake.usgs.gov
+- **NOAA/NCEI Global Historical Tsunami Database:** https://www.ngdc.noaa.gov
+
+Both sources are public and freely available.
 
 ---
 
-*Part of the IBM Data Science Professional Certificate portfolio*
+*Part of a series of data science explorations on public geophysical datasets.*  
+*Previous: Quantum navigation and magnetic disruption in the Levant corridor.*
